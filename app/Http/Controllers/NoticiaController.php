@@ -16,13 +16,26 @@ class NoticiaController extends Controller
      */
     public function index()
     {
-        $noticias = [];
-        //$noticias = Noticia::orderBy('created_at', 'DESC')->limit(10)->get();
-
+        /*
         Cache::put('site', 'google.com', 10); // Chave, valor, tempo (em segundos) para expirar
-
         $site = Cache::get('site');
         echo $site;
+        */
+        $noticias = [];
+       
+        // Esse é um metodo eficaz mas não eficiente pois pode ficar mais simples
+        /*
+        if(Cache::has('dez_primeiras_noticias')) {
+            $noticias = Cache::get('dez_primeiras_noticias');
+        } else {
+            $noticias = Noticia::orderBy('created_at', 'DESC')->limit(10)->get();
+            Cache::put('dez_primeiras_noticias', $noticias, 15);
+        }
+        */
+        // Metodo mais eficaz e eficiente
+        $noticias = Cache::remember('dez_primeiras_noticias', 15, function() {
+            return Noticia::orderBy('created_at', 'DESC')->limit(10)->get();
+        });
 
         return view('noticia', ['noticias' => $noticias]);
     }
